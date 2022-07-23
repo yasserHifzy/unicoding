@@ -38,7 +38,7 @@ class Account(models.Model):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=20)
     full_code = models.CharField(max_length=25)
-    extra = models.JSONField(default=dict)
+    extra = models.JSONField(default=dict, null=True, blank=True)
 
     def __str__(self):
         return f'{self.full_code} - {self.name}'
@@ -58,10 +58,13 @@ class JournalEntry(models.Model):
     class Meta:
         verbose_name_plural = 'Journal Entries'
 
-    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='journal_entries')
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=19, decimal_places=2)
     currency = models.CharField(max_length=3, choices=[
         ('USD', 'USD'),
         ('IQD', 'IQD'),
     ])
+
+    def __str__(self):
+        return f'{self.amount} - {self.currency}'

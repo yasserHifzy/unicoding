@@ -1,8 +1,9 @@
 from ninja import Router
-
+from django.shortcuts import get_object_or_404
 from accounting.models import Account, AccountTypeChoices
-from accounting.schemas import AccountOut, FourOFourOut
+from accounting.schemas import AccountOut, FourOFourOut, GeneralLedgerOut
 from typing import List
+from django.db.models import Sum, Avg
 
 account_router = Router()
 
@@ -32,3 +33,14 @@ def get_account_types(request):
     for t in AccountTypeChoices.choices:
         result[t[0]] = t[1]
     return result
+
+
+@account_router.get('/account-balance/{account_id}', response=GeneralLedgerOut)
+def get_account_balance(request, account_id: int):
+    account = get_object_or_404(Account, id=account_id)
+
+    balance = account.journal_entries.values('currency').annotate(sum=Sum('amount')).order_by()
+
+    journal_entries = account.journal_entries.all()
+
+    return 200, {'account': account.name, 'balance': list(balance), 'jes': list(journal_entries)}
