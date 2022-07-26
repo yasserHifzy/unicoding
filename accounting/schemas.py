@@ -19,9 +19,22 @@ class AccountOut(Schema):
 
 AccountOut.update_forward_refs()
 
+
+class StandAloneJournalEntry(Schema):
+    id: int
+    amount: Decimal
+    currency: str
+
+
 class TransactionOut(Schema):
     type: str
     description: str
+
+
+class TransactionOutSchema(Schema):
+    transaction: TransactionOut
+    jes: List[StandAloneJournalEntry]
+
 
 class JournalEntry(Schema):
     account: AccountOut

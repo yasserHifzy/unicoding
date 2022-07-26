@@ -1,18 +1,20 @@
 from ninja import Router
+from ninja.security import django_auth
 from django.shortcuts import get_object_or_404
 from accounting.models import Account, AccountTypeChoices
 from accounting.schemas import AccountOut, FourOFourOut, GeneralLedgerOut
 from typing import List
 from django.db.models import Sum, Avg
+from rest_framework import status
 
-account_router = Router()
+from restauth.authorization import AuthBearer
+
+account_router = Router(tags=['account'])
 
 
-@account_router.get("/get_all", response=List[AccountOut])
+@account_router.get("/get_all", response=List[AccountOut], auth=AuthBearer())
 def get_all(request):
-    accounts = Account.objects.all()
-
-    return accounts
+    return status.HTTP_200_OK, Account.objects.order_by('full_code')
 
 
 @account_router.get('/get_one/{account_id}/', response={
@@ -29,17 +31,14 @@ def get_one(request, account_id: int):
 
 @account_router.get('/get_account_types/')
 def get_account_types(request):
-    result = {}
-    for t in AccountTypeChoices.choices:
-        result[t[0]] = t[1]
-    return result
+    return {t[0]: t[1] for t in AccountTypeChoices.choices}
 
 
 @account_router.get('/account-balance/{account_id}', response=GeneralLedgerOut)
 def get_account_balance(request, account_id: int):
     account = get_object_or_404(Account, id=account_id)
 
-    balance = account.journal_entries.values('currency').annotate(sum=Sum('amount')).order_by()
+    balance = account.balance()
 
     journal_entries = account.journal_entries.all()
 

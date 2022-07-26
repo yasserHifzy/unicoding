@@ -1,4 +1,5 @@
 GET localhost:10000/api/account/get_all
+Authorization: Bearer supersecret
 
 ###
 GET localhost:10000/api/account/get_one/2

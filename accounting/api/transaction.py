@@ -1,7 +1,8 @@
 from ninja import Router
-
-from accounting.models import Transaction, JournalEntry
-from accounting.schemas import TransactionIn
+from rest_framework import status
+from accounting import services
+from accounting.exceptions import AtomicAccountTransferException, ZeroAmountError, AccountingEquationError
+from accounting.schemas import TransactionIn, TransactionOut, TransactionOutSchema
 
 transaction_router = Router()
 
@@ -9,23 +10,13 @@ transaction_router = Router()
 # @transaction_router.get('/get-all', response=List[TransactionIn])
 # def get_all(request):
 #     transactions = Transaction.objects.all()
-#
+# 
 #     return 200, transactions
 
-@transaction_router.post('/add-transaction')
+@transaction_router.post('/add-transaction', response=TransactionOutSchema)
 def add_transaction(request, transaction_in: TransactionIn):
-    t = Transaction.objects.create(
-        type=transaction_in.type,
-        description=transaction_in.description
-    )
-
-    cje = JournalEntry.objects.create(account_id=transaction_in.je.credit_account,
-                                      transaction=t,
-                                      amount=transaction_in.je.amount,
-                                      currency=transaction_in.je.currency)
-    dje = JournalEntry.objects.create(account_id=transaction_in.je.debit_account,
-                                      transaction=t,
-                                      amount=transaction_in.je.amount * -1,
-                                      currency=transaction_in.je.currency)
-
-    return 200, None
+    t = services.account_transfer(transaction_in)
+    return status.HTTP_200_OK, {
+        'transaction': t,
+        'jes': t.journal_entries.all()
+    }
