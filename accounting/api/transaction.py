@@ -18,5 +18,5 @@ def add_transaction(request, transaction_in: TransactionIn):
     t = services.account_transfer(transaction_in)
     return status.HTTP_200_OK, {
         'transaction': t,
-        'jes': t.journal_entries.all()
+        # 'jes': t.journal_entries.all()
     }

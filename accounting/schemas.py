@@ -13,8 +13,8 @@ class AccountOut(Schema):
     parent: 'AccountOut' = None
     name: str
     type: str
-    code: str
-    full_code: str
+    code: str = None
+    full_code: str = None
 
 
 AccountOut.update_forward_refs()
@@ -33,7 +33,7 @@ class TransactionOut(Schema):
 
 class TransactionOutSchema(Schema):
     transaction: TransactionOut
-    jes: List[StandAloneJournalEntry]
+    # jes: List[StandAloneJournalEntry]
 
 
 class JournalEntry(Schema):
@@ -72,4 +72,4 @@ class CurrencyBalance(Schema):
 class GeneralLedgerOut(Schema):
     account: str
     balance: List[CurrencyBalance]
-    jes: List[JournalEntryOut]
+    # jes: List[JournalEntryOut]

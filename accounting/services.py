@@ -26,10 +26,10 @@ def account_transfer(data):
         return status.HTTP_404_NOT_FOUND, {'detail': 'error during transaction creation'}
 
     if t:
-        try:
-            t.validate_accounting_equation()
-        except AccountingEquationError:
-            t.delete()
-            return status.HTTP_400_BAD_REQUEST, {'detail': 'transaction is not valid'}
+        # try:
+        #     t.validate_accounting_equation()
+        # except AccountingEquationError:
+        #     t.delete()
+        #     return status.HTTP_400_BAD_REQUEST, {'detail': 'transaction is not valid'}
         return t
 

@@ -94,7 +94,7 @@ class Transaction(models.Model):
     description = models.CharField(max_length=255)
 
     def validate_accounting_equation(self):
-        transaction_sum = self.journal_entries.aggregate(Sum('amount'))['sum__amount']
+        transaction_sum = self.journal_entries.aggregate(Sum('amount'))['sum']
 
         if transaction_sum != 0:
             raise AccountingEquationError
